@@ -4,6 +4,7 @@ import { Modal } from "antd/lib";
 interface ModuleModalProps {
     isOpen: boolean;
     closeModal: () => void;
+    id: any;
     data: any;
     setData: any;
 }
@@ -16,14 +17,17 @@ interface FormDataProps {
     date: any
 }
 
-const AddModal = ({
+const ViewModal = ({
     isOpen,
     closeModal,
+    id,
     data,
     setData
 }: ModuleModalProps) => {
 
-    // console.log("rendering add")
+    // console.log("rendering view")
+
+    const [editable, setEditable] = useState<boolean>(false);
 
     const getFormattedDate = () => {
 
@@ -40,7 +44,6 @@ const AddModal = ({
     }
 
     const currentTimeInMs = Date.now();
-    getFormattedDate()
 
     const [formData, setFormData] = useState<FormDataProps>({
         id: currentTimeInMs,
@@ -59,17 +62,24 @@ const AddModal = ({
             [name]: value,
         }));
 
-        // console.log(formData)
-
     };
 
-    const handleSubmit = async () => {
+    const handleEdit = () => {
 
-        setData([...data, formData])
-        // console.log(data)
-        closeModal()
+        const newData = data.map((task: any) => task.id === id ? { ...task, title: formData.title, desc: formData.desc } : task)
+        setData(newData)
 
     }
+
+    useEffect(() => {
+
+        const task = data.find((task: any) => task.id === id)
+
+        if (task) {
+            setFormData(task)
+        }
+
+    }, [id, data])
 
     return (
         <Modal
@@ -87,19 +97,23 @@ const AddModal = ({
 
                 <div className="w-full flex flex-col gap-3">
                     <label htmlFor="title" className="pl-1 text-lg">Title</label>
-                    <input value={formData.title} onChange={handleChange} type="text" name="title" id="title" placeholder="Title" className="w-full outline-none py-3 px-6 bg-zinc-700 rounded-xl" maxLength={16} />
+                    <input value={formData.title} disabled={!editable} onChange={handleChange} type="text" name="title" id="title" placeholder="Title" className={`w-full outline-none py-3 px-6  rounded-xl ${editable ? 'bg-zinc-700 text-white' : 'bg-zinc-900'}`} maxLength={16} />
                 </div>
 
                 <div className="w-full flex flex-col gap-3">
                     <label htmlFor="desc" className="pl-1 text-lg">Description</label>
-                    <textarea value={formData.desc} onChange={handleChange} id="desc" name="desc" placeholder="Description" className="w-full outline-none py-3 px-6 bg-zinc-700 rounded-xl resize-none no-scrollbar" />
+                    <textarea rows={5} value={formData.desc} disabled={!editable} onChange={handleChange} id="desc" name="desc" placeholder="Description" className={`w-full outline-none py-3 px-6 resize-none no-scrollbar rounded-xl ${editable ? 'bg-zinc-700 text-white' : 'bg-zinc-900'}`} />
                 </div>
 
-                <div className="w-full flex justify-end gap-5 items-center my-4">
+                <div className="w-full flex justify-between gap-5 items-center my-4">
 
                     <button onClick={closeModal} className="py-3 px-8 rounded-lg border-2 border-gray-700 hover:bg-gray-700 transition">Close</button>
 
-                    <button onClick={handleSubmit} className="py-3 px-8 rounded-lg bg-gray-600 hover:bg-gray-700 transition">Save</button>
+                    <button className="py-3 px-8 rounded-lg bg-gray-600 hover:bg-gray-700 transition"
+                        onClick={() => { if (!editable) { setEditable(true) } else if (editable) { handleEdit(); setEditable(false); closeModal() } }}>
+                        {editable && <span>Save</span>}
+                        {!editable && <span>Edit</span>}
+                    </button>
 
                 </div>
 
@@ -110,4 +124,4 @@ const AddModal = ({
 
 };
 
-export default AddModal;
+export default ViewModal;
