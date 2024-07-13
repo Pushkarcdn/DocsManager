@@ -24,7 +24,7 @@ function Card({ task, reference, data, setData }: any) {
     return (
         <motion.div drag dragConstraints={reference} whileDrag={{ scale: "1.05" }} dragElastic={100} draggable className='bg-zinc-900 rounded-[50px] overflow-hidden flex flex-col w-60 h-72 transition' >
 
-            <div onClick={() => { setViewModalStatus(true) }} className='p-7 pb-0 text-white flex items-center truncate gap-3'>
+            <div className='p-7 pb-0 text-white flex items-center truncate gap-3'>
 
                 <FaRegFileLines color='white' />
 
